@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>一周碳足迹统计分析器</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -26,7 +26,8 @@
             --text-light: #888;
             --warn-yellow: #f9d849;
             --warn-red: #d9534f;
-            --safe-blue: #5a778c;
+            --safe-blue: #347ab8;
+            --success-green: #38b000;
             --shadow-sm: 0 2px 8px rgba(122, 139, 100, 0.1);
             --shadow-md: 0 4px 16px rgba(122, 139, 100, 0.15);
             --shadow-hover: 0 6px 20px rgba(122, 139, 100, 0.2);
@@ -42,10 +43,10 @@
             background-color: var(--bg-page);
             background-image: radial-gradient(circle at 10% 10%, var(--main-green-light) 0%, transparent 40%);
             color: var(--text-normal);
-            padding: 20px;
+            padding: 16px;
             min-height: 100vh;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.8;
         }
 
         .container {
@@ -53,52 +54,64 @@
             margin: 0 auto;
         }
 
-        h1 {
+        .title-wrap {
             text-align: center;
-            font-size: 32px;
+            position: relative;
+            margin-bottom: 24px;
+        }
+        h1 {
+            font-size: 26px;
             font-weight: 700;
             color: var(--main-green);
-            margin-bottom: 25px;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             transition: var(--trans-normal);
+            display: inline-block;
         }
         h1:hover {
             transform: translateY(-2px);
             text-shadow: 0 2px 4px var(--shadow-sm);
         }
+        .watermark {
+            display: block;
+            font-size: 12px;
+            color: #b0b9a2;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
 
-        /* 三列比例 1 : 1 : 0.8，缩小第三列 */
         .row-main {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             flex-wrap: wrap;
+            align-items: flex-start;
         }
         .col-1 {
-            flex: 1;
-            min-width: 420px;
+            flex: 1.3;
+            min-width: 480px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
         .col-2 {
             flex: 1;
             min-width: 420px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
+            height: fit-content;
         }
         .col-3 {
-            flex: 0.8;
-            min-width: 400px;
+            flex: 0.7;
+            min-width: 360px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
         .module {
             background: var(--card-bg);
             border-radius: var(--radius-md);
-            padding: 22px;
+            padding: 20px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(198, 208, 180, 0.3);
             border-top: 4px solid var(--main-green);
@@ -115,14 +128,14 @@
         .module-title {
             display: flex;
             align-items: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--text-title);
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         .module-title i {
-            font-size: 24px;
-            margin-right: 10px;
+            font-size: 22px;
+            margin-right: 8px;
             color: var(--main-green);
         }
 
@@ -132,11 +145,11 @@
             gap: 8px;
             margin-bottom: 20px;
             flex-wrap: wrap;
-            padding-bottom: 15px;
+            padding-bottom: 16px;
             border-bottom: 1px dashed rgba(198, 208, 180, 0.4);
         }
         .week-btn {
-            padding: 8px 16px;
+            padding: 8px 14px;
             border: none;
             border-radius: var(--radius-lg);
             background: rgba(255,255,255,0.7);
@@ -144,6 +157,7 @@
             cursor: pointer;
             transition: var(--trans-normal);
             box-shadow: var(--shadow-sm);
+            font-size: 13px;
         }
         .week-btn.active {
             background: linear-gradient(135deg, var(--main-green), var(--main-green-dark));
@@ -155,40 +169,41 @@
             transform: translateY(-2px);
         }
 
-        /* 活动卡片相对定位 */
         .activity-card {
             position: relative;
             background: #fff;
             border-radius: var(--radius-sm);
-            padding: 16px;
-            margin-bottom: 14px;
+            padding: 18px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(198, 208, 180, 0.3);
+            overflow: visible;
         }
         .activity-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-title);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding-right: 100px;
+            line-height: 1.7;
         }
         .coef-desc {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-light);
             font-weight: normal;
         }
 
-        /* 排放量固定在卡片右上角，不遮挡内容 */
         .emit-text {
             position: absolute;
-            top: 14px;
-            right: 16px;
+            top: 16px;
+            right: 18px;
             color: var(--main-green-dark);
             font-weight: 700;
-            font-size: 14px;
-            padding: 3px 8px;
+            font-size: 13px;
+            padding: 4px 8px;
             background: rgba(198, 208, 180, 0.25);
             border-radius: var(--radius-sm);
             white-space: nowrap;
@@ -199,8 +214,8 @@
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 12px;
+            padding: 10px 0;
         }
         .radio-group {
             display: flex;
@@ -212,8 +227,8 @@
         .radio-item {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 7px 14px;
+            gap: 4px;
+            padding: 8px 12px;
             border: 1px solid var(--main-green-mid);
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -221,6 +236,7 @@
             user-select: none;
             background: #fff;
             position: relative;
+            font-size: 13px;
         }
         .radio-item:hover {
             background: var(--main-green-light);
@@ -231,7 +247,6 @@
             border-color: var(--main-green-dark);
         }
 
-        /* 悬浮提示 */
         .radio-item:hover::after {
             content: attr(data-tip);
             position: absolute;
@@ -240,8 +255,8 @@
             transform: translateX(-50%);
             background: #2c3328;
             color: #fff;
-            font-size: 12px;
-            padding: 4px 8px;
+            font-size: 11px;
+            padding: 3px 6px;
             border-radius: 4px;
             white-space: nowrap;
             z-index: 99;
@@ -253,20 +268,21 @@
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
-            border-width: 5px;
+            border-width: 4px;
             border-style: solid;
             border-color: #2c3328 transparent transparent transparent;
             z-index: 99;
         }
 
         .other-input {
-            width: 60px;
+            width: 50px;
             height: 28px;
             border: 1px solid #ccc;
             border-radius: var(--radius-sm);
-            padding: 0 4px;
-            font-size: 13px;
+            padding: 0 3px;
+            font-size: 12px;
             transition: var(--trans-fast);
+            margin: 0 4px;
         }
         .radio-item.active .other-input {
             border-color: #fff;
@@ -283,12 +299,12 @@
             gap: 6px;
         }
         .input-wrap input {
-            width: 80px;
+            width: 70px;
             height: 30px;
             border: 1px solid #ccc;
             border-radius: var(--radius-sm);
-            padding: 0 6px;
-            font-size: 14px;
+            padding: 0 4px;
+            font-size: 13px;
             transition: var(--trans-fast);
         }
         .input-wrap input:focus {
@@ -299,6 +315,7 @@
         .unit-text {
             color: var(--text-light);
             white-space: nowrap;
+            font-size: 12px;
         }
 
         .meal-row {
@@ -307,17 +324,17 @@
 
         .btn-wrap {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         #calcBtn, #clearBtn {
-            padding: 9px 24px;
+            padding: 10px 22px;
             border: none;
             border-radius: var(--radius-lg);
             color: #fff;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: var(--trans-normal);
             box-shadow: var(--shadow-sm);
@@ -343,87 +360,178 @@
             transform: translateY(0);
         }
 
-        .result-center {
-            text-align: center;
-        }
-        .result-item {
-            background: rgba(255,255,255,0.6);
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            margin: 12px 0;
-            box-shadow: var(--shadow-sm);
-        }
-        .total-carbon {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--main-green);
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .compare-panel {
-            background: rgba(232, 240, 224, 0.5);
-            padding: 14px;
-            border-radius: var(--radius-sm);
-            margin: 12px 0;
-        }
-
-        .result-tip {
-            font-weight: 700;
-            padding: 3px 6px;
-            border-radius: var(--radius-sm);
-            display: inline-block;
-        }
-        .text-high-yellow { color: var(--warn-yellow); }
-        .text-high-blue { color: var(--safe-blue); }
-        .text-high-green { color: var(--main-green); }
-
         .chart-box {
             width: 100%;
-            height: 320px;
+            height: 360px;
         }
 
-        .suggest-item {
-            margin: 10px 0;
-            border: 1px solid rgba(198, 208, 180, 0.4);
+        .result-card {
+            background: #fff;
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--main-green);
+        }
+        .card-week-total {
+            text-align: center;
+        }
+        .card-week-total .num {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--main-green);
+        }
+        .card-avg {
+            background: rgba(122, 139, 100, 0.08);
+            text-align: center;
+        }
+        .card-avg .num {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--main-green-dark);
+        }
+        .card-year {
+            text-align: center;
+        }
+        .card-year p {
+            margin: 4px 0;
+        }
+        .tree-text {
+            color: var(--main-green);
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .tree-icon {
+            color: var(--main-green);
+            margin-left: 6px;
+        }
+
+        .tip-high {
+            color: var(--warn-red);
+        }
+        .tip-normal {
+            color: var(--safe-blue);
+        }
+        .tip-good {
+            color: var(--success-green);
+        }
+
+        .suggest-card {
+            background: #fff;
             border-radius: var(--radius-sm);
             padding: 14px;
-            background: rgba(255,255,255,0.8);
-            transition: var(--trans-normal);
-        }
-        .suggest-item:hover {
+            margin: 12px 0;
             box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--main-green);
         }
-        .suggest-item.red-card {
-            background: #fef0f0;
-            border-color: var(--warn-red);
+        .suggest-card h4 {
+            font-size: 15px;
+            color: var(--text-title);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .suggest-card p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-normal);
+        }
+        .text-red {
+            color: var(--warn-red);
+            font-weight: 700;
         }
         .highlight-red {
             color: var(--warn-red);
             font-weight: 700;
         }
-
-        .merge-content {
-            line-height: 2;
-            font-size: 16px;
+        .fold-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            max-height: 0;
         }
-        .year-data {
-            font-size: 15px;
-        }
-        .tree-data {
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--main-green);
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed rgba(198, 208, 180, 0.4);
+        .fold-content.show {
+            max-height: 800px;
         }
 
-        /* 移动端自适应 */
-        @media (max-width: 1400px) {
+        @media (max-width: 768px) {
+            body {
+                padding: 14px;
+                line-height: 2;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .title-wrap {
+                margin-bottom: 20px;
+            }
+            .row-main {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .col-1, .col-2, .col-3 {
+                min-width: 100%;
+                width: 100%;
+                gap: 20px;
+            }
+            .module {
+                padding: 16px;
+            }
+            .module-title {
+                font-size: 18px;
+                margin-bottom: 18px;
+            }
+            .week-btn-wrap {
+                gap: 6px;
+                margin-bottom: 18px;
+                padding-bottom: 14px;
+            }
+            .activity-card {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+            .activity-name {
+                padding-right: 90px;
+                font-size: 15px;
+                margin-bottom: 12px;
+            }
+            .emit-text {
+                font-size: 12px;
+                top: 14px;
+                right: 16px;
+            }
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 12px 0;
+            }
+            .radio-group {
+                width: 100%;
+                gap: 10px;
+            }
+            .radio-item {
+                flex: 1 1 42%;
+                text-align: center;
+                justify-content: center;
+                padding: 10px 6px;
+            }
+            .meal-row > span {
+                width: 100% !important;
+                margin-bottom: 6px;
+                font-weight: 500;
+            }
+            .input-wrap {
+                width: 100%;
+            }
+            .btn-wrap {
+                margin-top: 28px;
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1400px) {
             .row-main {
                 flex-direction: column;
             }
@@ -431,30 +539,17 @@
                 min-width: 100%;
             }
         }
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-            .module {
-                padding: 16px;
-            }
-            .item-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .chart-box {
-                height: 280px;
-            }
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1><i class="fa-solid fa-leaf"></i> 一周碳足迹统计分析器</h1>
+        <div class="title-wrap">
+            <h1><i class="fa-solid fa-leaf"></i> 一周碳足迹统计分析器</h1>
+            <div class="watermark">福清一中音西校区 倪安琪制作</div>
+        </div>
 
         <div class="row-main">
-            <!-- 第一列：当日活动记录 -->
             <div class="col-1">
                 <div class="module">
                     <div class="module-title">
@@ -471,11 +566,10 @@
                         <button class="week-btn" data-day="6">周日</button>
                     </div>
 
-                    <!-- 交通出行 -->
                     <div class="activity-card">
                         <div class="activity-name">
                             交通出行
-                            <span class="coef-desc">碳排放系数：按出行方式(km)计算</span>
+                            <span class="coef-desc">碳排放：按出行方式(km)计算</span>
                         </div>
                         <div class="emit-text" id="traffic-emit">排放量：0.00 kg</div>
                         <div class="item-row">
@@ -492,11 +586,10 @@
                         </div>
                     </div>
 
-                    <!-- 用电时长 -->
                     <div class="activity-card">
                         <div class="activity-name">
                             用电时长
-                            <span class="coef-desc">碳排放系数：0.5 kg/小时</span>
+                            <span class="coef-desc">碳排放：0.5 kg/小时</span>
                         </div>
                         <div class="emit-text" id="elec-emit">排放量：0.00 kg</div>
                         <div class="item-row">
@@ -508,15 +601,14 @@
                         </div>
                     </div>
 
-                    <!-- 一日三餐 -->
                     <div class="activity-card">
                         <div class="activity-name">
                             一日三餐
-                            <span class="coef-desc">碳排放系数：按用餐类型(餐)计算</span>
+                            <span class="coef-desc">碳排放：按用餐类型(餐)计算</span>
                         </div>
                         <div class="emit-text" id="food-emit">三餐总排放：0.00 kg</div>
                         <div class="item-row meal-row">
-                            <span style="width:60px">早餐</span>
+                            <span>早餐</span>
                             <div class="radio-group breakfast-group">
                                 <div class="radio-item active" data-val="0" data-tip="系数：0 kg/餐">无</div>
                                 <div class="radio-item" data-val="0.5" data-tip="系数：0.5 kg/餐">素食</div>
@@ -525,7 +617,7 @@
                             </div>
                         </div>
                         <div class="item-row meal-row">
-                            <span style="width:60px">午餐</span>
+                            <span>午餐</span>
                             <div class="radio-group lunch-group">
                                 <div class="radio-item active" data-val="0" data-tip="系数：0 kg/餐">无</div>
                                 <div class="radio-item" data-val="0.5" data-tip="系数：0.5 kg/餐">素食</div>
@@ -534,7 +626,7 @@
                             </div>
                         </div>
                         <div class="item-row meal-row">
-                            <span style="width:60px">晚餐</span>
+                            <span>晚餐</span>
                             <div class="radio-group dinner-group">
                                 <div class="radio-item active" data-val="0" data-tip="系数：0 kg/餐">无</div>
                                 <div class="radio-item" data-val="0.5" data-tip="系数：0.5 kg/餐">素食</div>
@@ -544,11 +636,10 @@
                         </div>
                     </div>
 
-                    <!-- 生活垃圾 -->
                     <div class="activity-card">
                         <div class="activity-name">
                             生活垃圾
-                            <span class="coef-desc">碳排放系数：0.6 kg/袋</span>
+                            <span class="coef-desc">碳排放：0.6 kg/袋</span>
                         </div>
                         <div class="emit-text" id="garbage-emit">排放量：0.00 kg</div>
                         <div class="item-row">
@@ -560,11 +651,10 @@
                         </div>
                     </div>
 
-                    <!-- 其他活动 -->
                     <div class="activity-card">
                         <div class="activity-name">
                             其他活动
-                            <span class="coef-desc">碳排放系数：按项目类型计算</span>
+                            <span class="coef-desc">碳排放：按项目类型计算</span>
                         </div>
                         <div class="emit-text" id="other-emit">总排放：0.00 kg</div>
                         <div class="item-row">
@@ -572,30 +662,29 @@
                                 <div class="radio-item" data-val="5" data-tip="系数：5 kg/件">
                                     新衣服
                                     <input type="number" class="other1-num other-input" min="0" value="0">
-                                    <span style="font-size:12px">件</span>
+                                    <span style="font-size:11px">件</span>
                                 </div>
                                 <div class="radio-item" data-val="0.01" data-tip="系数：0.01 kg/张">
                                     打印纸张
                                     <input type="number" class="other2-num other-input" min="0" value="0">
-                                    <span style="font-size:12px">张</span>
+                                    <span style="font-size:11px">张</span>
                                 </div>
                                 <div class="radio-item" data-val="1" data-tip="系数：1 kg/场">
                                     观影
                                     <input type="number" class="other3-num other-input" min="0" value="0">
-                                    <span style="font-size:12px">场</span>
+                                    <span style="font-size:11px">场</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="btn-wrap">
-                        <button id="calcBtn"><i class="fa-solid fa-calculator"></i> 生成周建议</button>
-                        <button id="clearBtn"><i class="fa-solid fa-trash"></i> 清空整周数据</button>
+                        <button id="calcBtn"><i class="fa-solid fa-calculator"></i> 生成建议</button>
+                        <button id="clearBtn"><i class="fa-solid fa-trash"></i> 清空数据</button>
                     </div>
                 </div>
             </div>
 
-            <!-- 第二列：图表区域 -->
             <div class="col-2">
                 <div class="module">
                     <div class="module-title">
@@ -611,17 +700,29 @@
                 </div>
             </div>
 
-            <!-- 第三列：结果+建议（宽度缩小） -->
             <div class="col-3">
-                <div class="module result-center">
-                    <div class="module-title">
-                        <i class="fa-solid fa-chart-line"></i> 碳排放结果与全年估算
-                    </div>
-                    <div id="resultBox" class="merge-content">暂无数据</div>
-                </div>
                 <div class="module">
                     <div class="module-title">
-                        <i class="fa-solid fa-lightbulb"></i> 低碳生活行动建议
+                        <i class="fa-solid fa-chart-line"></i> 碳排放数据汇总
+                    </div>
+                    <div class="result-card card-week-total">
+                        <p>本周总碳足迹</p>
+                        <p class="num" id="weekTotal">0.00 kg</p>
+                    </div>
+                    <div class="result-card card-avg">
+                        <p>日均碳足迹及水平判定</p>
+                        <p class="num" id="avgTotal">0.00 kg</p>
+                        <p id="avgTip"></p>
+                    </div>
+                    <div class="result-card card-year">
+                        <p>全年预估排放：<span id="yearTotal">0.00 kg</span></p>
+                        <p class="tree-text">需种植树木：<span id="treeNum">0</span> 棵 <i class="fa-solid fa-tree tree-icon"></i></p>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <div class="module-title">
+                        <i class="fa-solid fa-lightbulb"></i> 低碳生活建议
                     </div>
                     <div id="suggestBox"></div>
                 </div>
@@ -755,39 +856,75 @@
             }
             pieChart.setOption({
                 tooltip: { trigger: 'item', formatter: '{b}：{c} kg（{d}%）' },
-                legend: { orient: 'vertical', right: 10, top: 'center', textStyle:{color:'#4a4a4a'} },
+                legend: { top: 10, left: 'center', itemGap: 15 },
+                graphic: {
+                    elements: [{
+                        type: 'text',
+                        left: 'center',
+                        top: 'center',
+                        style: {
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            fill: '#2c3328',
+                            text: '',
+                            textAlign: 'center'
+                        }
+                    }]
+                },
                 series: [{
                     type: 'pie',
                     radius: ['42%','72%'],
-                    itemStyle: { 
-                        borderRadius: 8,
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    },
-                    label: {
-                        show:true,
-                        position:'outside',
-                        formatter:'{b}',
-                        fontSize:14,
-                        color: '#2c3328'
-                    },
-                    labelLine: { show:true, length:18, length2:22, lineStyle:{color:'#7A8B64'} },
-                    emphasis: { 
-                        label:{show:true,fontSize:16,fontWeight:'bold'},
-                        itemStyle:{shadowBlur:10, shadowColor:'rgba(0,0,0,0.15)'}
-                    },
-                    data: data,
-                    animation:true, animationDuration:700
+                    center: ['50%', '60%'],
+                    itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+                    label: { show: false },
+                    emphasis: { label:{show:false} },
+                    data: data
                 }]
             });
-            updateWeekResult(total.reduce((a,b)=>parseFloat((a+b).toFixed(2)),0));
+            pieChart.off('mouseover');
+            pieChart.on('mouseover', function(params) {
+                pieChart.setOption({
+                    graphic: {
+                        elements: [{
+                            type: 'text',
+                            left: 'center',
+                            top: 'center',
+                            style: {
+                                fontSize: 28,
+                                fontWeight: 'bold',
+                                fill: '#2c3328',
+                                text: params.name,
+                                textAlign: 'center'
+                            }
+                        }]
+                    }
+                });
+            });
+            pieChart.off('mouseout');
+            pieChart.on('mouseout', function() {
+                pieChart.setOption({
+                    graphic: {
+                        elements: [{
+                            type: 'text',
+                            left: 'center',
+                            top: 'center',
+                            style: {
+                                fontSize: 24,
+                                fontWeight: 'bold',
+                                fill: '#2c3328',
+                                text: '',
+                                textAlign: 'center'
+                            }
+                        }]
+                    }
+                });
+            });
         }
 
         function updateBarChart() {
             const series = [];
             const dayTotal = weekData.map(day => day.reduce((a,b)=>a+b,0));
             const maxDayIdx = dayTotal.indexOf(Math.max(...dayTotal));
-
             for(let i=0;i<5;i++){
                 const d = weekData.map(day=>day[i]);
                 series.push({
@@ -798,74 +935,55 @@
                     itemStyle: { color: colorList[i] }
                 });
             }
-
             barChart.setOption({
-                tooltip: { 
-                    trigger: 'axis', 
-                    axisPointer:{type:'shadow'},
-                    backgroundColor: 'rgba(122, 139, 100, 0.9)',
-                    textStyle: {color:'#fff'},
-                    borderRadius: 6
-                },
-                legend: { top:0, left:'center', textStyle:{color:'#4a4a4a'} },
-                xAxis: { 
-                    type:'category', 
-                    data: weekText,
-                    axisLine:{lineStyle:{color:'#C6D0B4'}},
-                    axisLabel:{color:'#4a4a4a'}
-                },
-                yAxis: { 
-                    type:'value', 
-                    name:'碳排放(kg)',
-                    nameTextStyle:{color:'#7A8B64'},
-                    axisLine:{lineStyle:{color:'#C6D0B4'}},
-                    splitLine:{color:'rgba(198, 208, 180, 0.3)'}
-                },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                tooltip: { trigger: 'axis' },
+                legend: { top: 10, left: 'center', width: '80%', itemGap: 20 },
+                grid: { top: '24%', left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type:'category', data: weekText },
+                yAxis: { type:'value', name:'碳排放(kg)' },
                 graphic: [{
                     type: 'rect',
                     left: maxDayIdx * 100 / 7 + '%',
-                    top: 0,
+                    top: '24%',
                     width: 100 / 7 + '%',
-                    height: '100%',
+                    height: '76%',
                     style: { fill: 'rgba(249, 216, 73, 0.25)' }
                 }],
                 series: series
             });
         }
 
-        function updateWeekResult(weekTotal) {
-            let compareText = "", resultClass = "";
+        function updateWeekResult() {
+            const total = [0,0,0,0,0];
+            weekData.forEach(d=>{
+                for(let i=0;i<5;i++) total[i] = parseFloat((total[i]+d[i]).toFixed(2));
+            });
+            const weekTotal = total.reduce((a,b)=>parseFloat((a+b).toFixed(2)),0);
             const avgDay = parseFloat((weekTotal / 7).toFixed(2));
+            let icon = "", cls = "", text = "";
+
             if (avgDay > dayStandard) {
-                compareText = `<i class='fa-solid fa-triangle-exclamation' style='color:var(--warn-yellow);'></i> 日均碳足迹高于参考值`;
-                resultClass = "result-tip text-high-yellow";
+                icon = '<i class="fa-solid fa-triangle-exclamation"></i> ';
+                cls = "tip-high";
+                text = "高于全国人均，碳排放量偏高";
             } else if (avgDay > dayGood) {
-                compareText = `<i class='fa-solid fa-check' style='color:var(--safe-blue);'></i> 日均碳足迹达到合理水平`;
-                resultClass = "result-tip text-high-blue";
+                icon = '<i class="fa-solid fa-circle-check"></i> ';
+                cls = "tip-normal";
+                text = "处于合理区间，仍有优化空间";
             } else {
-                compareText = `<i class='fa-solid fa-award' style='color:var(--main-green);'></i> 日均碳足迹处于优秀水平`;
-                resultClass = "result-tip text-high-green";
+                icon = '<i class="fa-solid fa-award"></i> ';
+                cls = "tip-good";
+                text = "达到优秀水平，低碳习惯良好";
             }
             const yearTotal = parseFloat((weekTotal / 7 * dayOfYear).toFixed(2));
             const treeCount = Math.ceil(yearTotal / treeAbsorb);
 
-            const resHtml = `
-                <div class="result-item total-carbon">一周总碳足迹：${weekTotal.toFixed(2)} kg</div>
-                <div class="compare-panel">
-                    <p>日均碳足迹：${avgDay.toFixed(2)} kg</p>
-                    <p>参考标准：单日参考值 ${dayStandard} kg | 优秀值 ${dayGood} kg</p>
-                    <p class="${resultClass}" style="margin-top:8px;">${compareText}</p>
-                </div>
-                <div class="result-item year-data">
-                    <p>全年预估总碳排放：<strong>${yearTotal.toFixed(2)} kg</strong></p>
-                </div>
-                <div class="result-item tree-data">
-                    <p>需种植树木数量：<strong>${treeCount}</strong> 棵</p>
-                    <p style="font-size:14px;font-weight:normal;color:#888;">（按单棵树每年吸收 ${treeAbsorb} kg 二氧化碳计算）</p>
-                </div>
-            `;
-            document.getElementById('resultBox').innerHTML = resHtml;
+            document.getElementById('weekTotal').innerText = weekTotal.toFixed(2) + " kg";
+            document.getElementById('avgTotal').innerText = avgDay.toFixed(2) + " kg";
+            document.getElementById('avgTip').className = cls;
+            document.getElementById('avgTip').innerHTML = icon + text;
+            document.getElementById('yearTotal').innerText = yearTotal.toFixed(2) + " kg";
+            document.getElementById('treeNum').innerText = treeCount;
         }
 
         function bindRadioSingle() {
@@ -912,6 +1030,7 @@
             saveCurrentDayData();
             updatePieChart();
             updateBarChart();
+            updateWeekResult();
         }
 
         function getActiveVal(selector) {
@@ -923,6 +1042,16 @@
             const inputs = document.querySelectorAll('input[type="number"]');
             inputs.forEach(inp => {
                 inp.addEventListener('input', realTimeCalc);
+            });
+        }
+
+        function bindFold() {
+            const foldTitles = document.querySelectorAll('.fold-title');
+            foldTitles.forEach(title => {
+                title.addEventListener('click', function(){
+                    const content = this.nextElementSibling;
+                    content.classList.toggle('show');
+                });
             });
         }
 
@@ -940,26 +1069,51 @@
             });
             const weekTotal = total.reduce((a,b)=>parseFloat((a+b).toFixed(2)),0);
             const maxVal = Math.max(...total);
-            let suggestHtml = "";
-            const idx = total.indexOf(maxVal);
-            const mapText = [
-                "交通出行碳排放偏高，建议优先步行、公交、电动车，减少私家车。",
-                "用电碳排放偏高，及时关闭闲置电器，减少待机耗电。",
-                "饮食碳排放偏高，减少外卖，多选择家常素食。",
-                "生活垃圾排放偏高，做好垃圾分类，减少一次性用品。",
-                "其他活动排放偏高，减少新衣购买、不必要打印与娱乐消费。"
+            const maxIdx = total.indexOf(maxVal);
+
+            const tipText = [
+                "本周交通出行产生的碳排放量最高，日常出行频繁选择私家车，燃油车辆行驶过程中会产生大量尾气与碳排放。建议日常短途出行优先选择步行、骑行自行车，中远距离尽量搭乘公交车、电动车辆，减少燃油私家车使用频次，从出行源头降低碳排放。",
+                "本周用电环节碳排放占比最大，室内电器长时间待机、无人时未及时断电、灯具长亮等行为造成电力资源浪费，间接增加碳消耗。请养成人走断电、随手关灯的习惯，手机、电脑等设备充满电量后及时拔掉电源，减少无效耗电。",
+                "本周饮食相关碳排放偏高，三餐中外卖、预制餐食占比较高，外卖餐盒、包装袋属于一次性用品，食材加工、冷链运输也会带来额外排放。建议尽量选择食堂堂食、家庭简餐，多食用本地时令素食，减少外卖订购与高碳餐饮消费。",
+                "本周生活垃圾排放量偏大，日常产生的干垃圾、厨余垃圾未做好分类，一次性塑料袋、餐具、饮料瓶等使用过多，垃圾清运与处理过程会持续产生碳排放。坚持垃圾分类投放，减少一次性用品购入，从生活源头做到垃圾减量。",
+                "本周其他活动碳排放超标，频繁购置新衣物、无节制打印纸张、长时间观影娱乐等行为，会带来生产、耗材、场地能耗等多重碳排放。倡导理性消费，衣物循环穿着，纸张双面利用，合理安排休闲娱乐时长。"
             ];
-            if(maxVal > weekTotal * 0.2){
-                suggestHtml += `<div class="suggest-item"><p><strong><i class="fa-solid fa-exclamation-circle"></i> ${seriesName[idx]}</strong></p><p>${mapText[idx]}</p></div>`;
-            }
-            if(weekTotal > dayStandard *7){
-                suggestHtml += `<div class="suggest-item red-card"><p><strong><i class="fa-solid fa-seedling"></i> 综合提醒</strong></p><p><span class="highlight-red">本周总碳足迹偏高</span>，请综合优化生活习惯，践行低碳生活。</p></div>`;
-            }
-            if(!suggestHtml) suggestHtml = `<div class="suggest-item"><p>本周碳排放整体合理，请继续保持低碳习惯。</p></div>`;
+
+            let suggestHtml = `
+            <div class="suggest-card">
+                <h4><i class="fa-solid fa-exclamation-circle"></i> 本周整改与提醒</h4>
+                <p>${maxVal > weekTotal * 0.2 ? '<span class="text-red">重点整改：</span>' + tipText[maxIdx] : '本周各类活动碳排放分布较为均衡，整体排放水平平稳，请继续保持现有低碳生活习惯，持续规范日常行为。'}
+                ${weekTotal > dayStandard * 7 ? '<br><br><span class="highlight-red">综合提醒：</span>本周整体总碳足迹超出合理参考标准，全天各类生活行为叠加后排放总量偏高。请对照上方重点问题逐项整改，严格执行低碳行动方案，逐步降低每日、每周碳排放量，养成长期低碳生活模式。' : ''}</p>
+            </div>
+
+            <div class="suggest-card">
+                <h4 class="fold-title"><i class="fa-solid fa-calendar-week"></i> 下周执行计划</h4>
+                <div class="fold-content show">
+                    <p>1. 短途出行优先步行、骑行或公交；<br>
+                    2. 人走断电，杜绝长明灯与设备待机；<br>
+                    3. 减少外卖，自备餐具，简约用餐；<br>
+                    4. 垃圾源头减量，严格分类投放；<br>
+                    5. 按需消费，减少不必要购物与娱乐消费。</p>
+                </div>
+            </div>
+
+            <div class="suggest-card">
+                <h4 class="fold-title"><i class="fa-solid fa-calendar-days"></i> 全年长期低碳习惯</h4>
+                <div class="fold-content">
+                    <p>1. 绿色出行，优先公共交通与非机动车；<br>
+                    2. 节约水电，养成随手断电、节水习惯；<br>
+                    3. 坚持简约饮食，少外卖、少一次性用品；<br>
+                    4. 践行垃圾分类，推动资源循环利用；<br>
+                    5. 理性消费，旧物再利用，降低附加排放；<br>
+                    6. 主动宣传低碳理念，带动身边人共同环保。</p>
+                </div>
+            </div>
+            `;
+
             document.getElementById('suggestBox').innerHTML = suggestHtml;
+            bindFold();
         });
 
-        // 初始化
         bindWeekSwitch();
         bindRadioSingle();
         bindOtherInputAutoActive();
